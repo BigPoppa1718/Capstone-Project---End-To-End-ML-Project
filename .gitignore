@@ -1,0 +1,26 @@
+# Python bytecode and cache
+__pycache__/
+*.pyc
+
+# Local Data Stores (Handled by DVC instead of Git)
+data/raw/
+data/processed/
+*.csv
+
+# MLflow local run tracking data
+mlruns/
+mlartifacts/
+
+# Virtual Environments
+venv/
+.venv/
+env/
+
+# IDE files
+.vscode/
+.idea/
+.DS_Store
+
+# MLflow SQL Database backends
+mlflow.db
+*.db

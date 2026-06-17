@@ -1,0 +1,41 @@
+# MLOps Capstone Project Configuration File
+
+data_paths:
+  processed_data_input: "data/processed/healthcare_preprocessed_master.csv"
+  target_column: "exceeds_budget"
+
+split_parameters:
+  test_size: 0.2
+  random_state: 42
+  stratify_target: true
+
+mlflow_settings:
+  experiment_name: "Provider_Reimbursement_Prediction"
+
+# Model Configurations Matrix
+models:
+  logistic_regression:
+    run_name: "Baseline_Logistic_Regression"
+    model_name: "logistic_regression_baseline"  # Clean string, no slashes
+    hyperparameters:
+      C: 0.5
+      max_iter: 500
+      random_state: 42
+
+  random_forest:
+    run_name: "Ensemble_Random_Forest"
+    model_name: "random_forest_ensemble"        # Clean string, no slashes
+    hyperparameters:
+      n_estimators: 150
+      max_depth: 8
+      min_samples_split: 5
+      random_state: 42
+
+  gradient_boosting:
+    run_name: "XGBoost_Gradient_Boosting"
+    model_name: "xgboost_gradient_boosting"    # Clean string, no slashes
+    hyperparameters:
+      n_estimators: 100
+      learning_rate: 0.05
+      max_depth: 5
+      random_state: 42
