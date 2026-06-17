@@ -3,9 +3,8 @@ __pycache__/
 *.pyc
 
 # Local Data Stores (Handled by DVC instead of Git)
-data/raw/
-data/processed/
-*.csv
+dvc add data/raw/healthcare_raw.csv
+dvc add data/processed/healthcare_preprocessed_master.csv
 
 # MLflow local run tracking data
 mlruns/
