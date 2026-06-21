@@ -30,10 +30,15 @@ jobs:
         python -m pip install --upgrade pip
         pip install pyyaml pandas numpy scikit-learn xgboost mlflow
 
-    - name: Execute Step 1 - Preprocessing Validation
+    - name: Create Empty Data Directory Structure
       run: |
-        # This ensures your raw data is generated and cleaned first
-        python src/data_pipeline.py || echo "Data pipeline handled locally"
+        mkdir -p data/raw
+        mkdir -p data/processed
+
+    - name: Execute Step 1 - Data Generation and Preprocessing
+      run: |
+        # Corrected path to match your physical local file name
+        python src/data_preprocessing.py
 
     - name: Execute Step 2 - Multi-Model Experiment Run
       run: |
