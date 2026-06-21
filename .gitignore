@@ -23,3 +23,10 @@ env/
 # MLflow SQL Database backends
 mlflow.db
 *.db
+
+# Local Environment Variables (Extremely Critical)
+.env
+*.env
+
+# App state caches
+.streamlit/
