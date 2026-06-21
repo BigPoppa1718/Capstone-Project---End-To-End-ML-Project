@@ -1,0 +1,5 @@
+outs:
+- md5: 9fa37897b52659c2326a0d38643be1fa
+  size: 522316
+  hash: md5
+  path: healthcare_raw.csv

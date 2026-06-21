@@ -1,7 +1,3 @@
-# Python bytecode and cache
-__pycache__/
-*.pyc
-
 # Local Data Stores (Handled by DVC instead of Git)
 dvc add data/raw/healthcare_raw.csv
 dvc add data/processed/healthcare_preprocessed_master.csv
@@ -9,6 +5,14 @@ dvc add data/processed/healthcare_preprocessed_master.csv
 # MLflow local run tracking data
 mlruns/
 mlartifacts/
+# MLflow SQL Database backends
+mlflow.db
+*.db
+
+# Ignore local system, Python caches, and variables
+__pycache__/
+*.pyc
+
 
 # Virtual Environments
 venv/
@@ -20,9 +24,7 @@ env/
 .idea/
 .DS_Store
 
-# MLflow SQL Database backends
-mlflow.db
-*.db
+
 
 # Local Environment Variables (Extremely Critical)
 .env
