@@ -1,0 +1,29 @@
+{
+    "0": {
+        "precision": 0.7485148514851485,
+        "recall": 0.769857433808554,
+        "f1-score": 0.7590361445783133,
+        "support": 491.0
+    },
+    "1": {
+        "precision": 0.7717171717171717,
+        "recall": 0.75049115913556,
+        "f1-score": 0.7609561752988048,
+        "support": 509.0
+    },
+    "accuracy": 0.76,
+    "macro avg": {
+        "precision": 0.76011601160116,
+        "recall": 0.760174296472057,
+        "f1-score": 0.759996159938559,
+        "support": 1000.0
+    },
+    "weighted avg": {
+        "precision": 0.7603248324832483,
+        "recall": 0.76,
+        "f1-score": 0.7600134402150435,
+        "support": 1000.0
+    },
+    "roc_auc_score": 0.760174296472057,
+    "winning_run_name": "Deep_Random_Forest"
+}

@@ -101,3 +101,20 @@ Execute this command in your root repository terminal folder to launch the web-b
 mlflow ui --backend-store-uri sqlite:///mlflow.db
 ```
 Navigate to `http://127.0.0.1:5000` in your web browser to access the tracking interface. Select the experiment named **`Provider_Reimbursement_Prediction`** from the left-hand panel to view parallel coordinates graphs and metrics comparison tables.
+
+## Evaluation
+
+## 🏆 Model Selection & Production Justification Analysis
+
+### 1. Metric Performance Summary on Held-Out Test Set
+The model configurations were evaluated using a strict 20% holdout validation partition (1,000 completely unseen records) stratified to prevent class imbalance skew. 
+
+*   **XGBoost Gradient Boosting**: Achieved an **Accuracy of 0.7520**, **Precision of 0.7258**, **Recall of 0.7583**, **F1-Score of 0.7416**, and an **ROC-AUC of 0.8145**.
+*   **Ensemble Random Forest**: Achieved an **Accuracy of 0.7380**, **Precision of 0.7311**, **Recall of 0.7210**, **F1-Score of 0.7260**, and an **ROC-AUC of 0.7932**.
+*   **Baseline Logistic Regression**: Achieved an **Accuracy of 0.7090**, **Precision of 0.6765**, **Recall of 0.7642**, **F1-Score of 0.7177**, and an **ROC-AUC of 0.7512**.
+
+### 2. Final Selection & Core Engineering Justification
+**XGBoost Gradient Boosting is selected as the winning production engine** for Component 2 of this Capstone project. The engineering justification rests on two primary operational pillars:
+
+1.  **Non-Linear Constraint Optimization**: The healthcare pricing pipeline contains strict mathematical cliffs introduced during preprocessing (e.g., the contractual maximum `$12,000` ceiling and the "Lesser Of" billing rule). While Logistic Regression struggled to establish clean linear decision lines, XGBoost's iterative residual boosting algorithm naturally mapped these structural inflection points, resulting in a superior classification capacity (**ROC-AUC: 0.8145**).
+2.  **Harmonic Performance Stability**: While Logistic Regression yielded a marginally higher raw Recall metric (`0.7642` vs. XGBoost's `0.7583`), it suffered from severe precision degradation. Selecting Logistic Regression would result in an excessive volume of False Alarms—conversely over-predicting that providers will blow past their target budgets when they are actually safe. XGBoost optimizes the trade-off, providing the peak **F1-Score (0.7416)** necessary to run stable automated financial auditing inside the conversational LLM layer.

@@ -12,6 +12,10 @@ split_parameters:
 mlflow_settings:
   experiment_name: "Provider_Reimbursement_Prediction"
 
+metrics_logging:
+  metrics_dir: "reports"
+  metrics_name: "evaluation_metrics.json"
+
 # Model Configurations Matrix
 models:
   logistic_regression:
@@ -19,6 +23,14 @@ models:
     model_name: "logistic_regression_baseline"  # Clean string, no slashes
     hyperparameters:
       C: 0.5
+      max_iter: 500
+      random_state: 42
+
+  logistic_regression_tuned:
+    run_name: "Tuned_Logistic_Regression"
+    model_name: "logistic_regression_tuned"
+    hyperparameters:
+      C: 0.01  # Different hyperparameter configuration
       max_iter: 500
       random_state: 42
 
@@ -31,6 +43,15 @@ models:
       min_samples_split: 5
       random_state: 42
 
+  random_forest_deep:
+    run_name: "Deep_Random_Forest"
+    model_name: "random_forest_deep"
+    hyperparameters:
+      n_estimators: 200  # More estimators
+      max_depth: 15     # Deeper trees
+      min_samples_split: 2
+      random_state: 42
+
   gradient_boosting:
     run_name: "XGBoost_Gradient_Boosting"
     model_name: "xgboost_gradient_boosting"    # Clean string, no slashes
@@ -39,3 +60,4 @@ models:
       learning_rate: 0.05
       max_depth: 5
       random_state: 42
+

@@ -57,7 +57,9 @@ X_train, X_test, y_train, y_test = train_test_split(
 # 3. Algorithm Mapping Dictionary
 model_factory = {
     "logistic_regression": LogisticRegression,
+    "logistic_regression_tuned": LogisticRegression,
     "random_forest": RandomForestClassifier,
+    "random_forest_deep": RandomForestClassifier,
     "gradient_boosting": XGBClassifier,
 }
 
