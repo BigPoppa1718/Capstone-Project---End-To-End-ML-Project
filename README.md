@@ -119,6 +119,8 @@ The model configurations were evaluated using a strict 20% holdout validation pa
 1.  **Non-Linear Constraint Optimization**: The healthcare pricing pipeline contains strict mathematical cliffs introduced during preprocessing (e.g., the contractual maximum `$12,000` ceiling and the "Lesser Of" billing rule). While Logistic Regression struggled to establish clean linear decision lines, XGBoost's iterative residual boosting algorithm naturally mapped these structural inflection points, resulting in a superior classification capacity (**ROC-AUC: 0.8145**).
 2.  **Harmonic Performance Stability**: While Logistic Regression yielded a marginally higher raw Recall metric (`0.7642` vs. XGBoost's `0.7583`), it suffered from severe precision degradation. Selecting Logistic Regression would result in an excessive volume of False Alarms—conversely over-predicting that providers will blow past their target budgets when they are actually safe. XGBoost optimizes the trade-off, providing the peak **F1-Score (0.7416)** necessary to run stable automated financial auditing inside the conversational LLM layer.
 
+
+### LLM- Powered Interface
 # Phase 3: Conversational LLM-Powered Interface Layer (Component 2)
 
 This phase implements the natural language interface layer (Component 2) of the Capstone project. It wraps our highest-performing registered machine learning model inside a responsive **Streamlit Web Application**, orchestrating user query extraction, edge-case validation, model inference execution, and dynamic response generation using **Nebius AI Studio**.

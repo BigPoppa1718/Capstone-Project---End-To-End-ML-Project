@@ -8,10 +8,11 @@ import yaml
 from sklearn.metrics import classification_report, roc_auc_score
 from sklearn.model_selection import train_test_split
 
-# 1. Resolve Project Root Directories
+# Dynamic Path: Locates config.yaml relative to this script's directory
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
-CONFIG_PATH = os.path.join(PROJECT_ROOT, "config.yaml")
+CONFIG_PATH = os.path.join(PROJECT_ROOT, "configs", "config.yaml")
+
 
 try:
     with open(CONFIG_PATH, "r") as file:

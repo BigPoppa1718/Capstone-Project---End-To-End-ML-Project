@@ -15,16 +15,23 @@ st.set_page_config(page_title="Healthcare Reimbursement Assistant", page_icon="�
 
 # Ensure API Key is bound securely from environment vectors
 NEBIUS_API_KEY = os.getenv("NEBIUS_API_KEY")
-BASE_URL = "https://nebius.ai"
+
+# FIX: Set the correct official Nebius Studio API connection endpoint
+BASE_URL = "https://api.studio.nebius.ai/v1"
 
 @st.cache_resource
 def load_production_artifacts():
-    """Loads shared project configurations and the winning registered ML model."""
-    with open("config.yaml", "r") as file:
+    """Loads shared project configurations and the winning registered ML pipeline."""
+    SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+    PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+    
+    config_path = os.path.join(PROJECT_ROOT, "configs", "config.yaml")
+    db_path = os.path.join(PROJECT_ROOT, "mlflow.db")
+    
+    with open(config_path, "r") as file:
         config = yaml.safe_load(file)
         
-    # Connect to the SQLite local backend relational store established in Phase 2
-    mlflow.set_tracking_uri("sqlite:///mlflow.db")
+    mlflow.set_tracking_uri(f"sqlite:///{db_path}")
     client = mlflow.tracking.MlflowClient()
     
     experiment = client.get_experiment_by_name(config["mlflow_settings"]["experiment_name"])
@@ -32,16 +39,18 @@ def load_production_artifacts():
     
     # Locate the optimal run (XGBoost)
     xgboost_run = next(r for r in runs if r.info.run_name == "XGBoost_Gradient_Boosting")
-    model_name_key = config["models"]["gradient_boosting"]["model_name"]
-    model_uri = f"runs:/{xgboost_run.info.run_id}/{model_name_key}"
     
-    loaded_model = mlflow.pyfunc.load_model(model_uri)
-    return config, loaded_model
+    # FIX: Load the unified pipeline artifact containing your preprocessor + model transformer layers
+    model_uri = f"runs:/{xgboost_run.info.run_id}/production_reimbursement_pipeline"
+    
+    loaded_pipeline = mlflow.pyfunc.load_model(model_uri)
+    return config, loaded_pipeline
+
 
 try:
     config, model = load_production_artifacts()
 except Exception as e:
-    st.error("⚠️ Failed to load production ML models. Ensure 'mlflow.db' is populated.")
+    st.error(f"⚠️ Failed to load production ML models. Ensure 'mlflow.db' is populated. Error: {e}")
     st.stop()
 
 # ==========================================
@@ -89,9 +98,10 @@ if st.button("Analyze Financial Risk", type="primary"):
             "and format them strictly into the requested structural JSON format matching the ClaimFeatures schema."
         )
         
+         # 1. FIX: Update the model string for the Structured Output Parse Layer (Around Line 89)
         try:
             completion = ai_client.beta.chat.completions.parse(
-                model="meta-llama/Meta-Llama-3.1-70B-Instruct", # Standard Nebius enterprise model endpoint
+                model="meta-llama/Llama-3.3-70B-Instruct", # Updated to active Nebius endpoint identifier
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_query}
@@ -114,21 +124,30 @@ if st.button("Analyze Financial Risk", type="primary"):
             st.info("Please expand your text block to supply the required billing elements to clear calculation ambiguities.")
             st.stop()
 
+        # ==========================================
         # C. ML Model Pipeline Invocation Engine
-        # Structure fields to exactly match the training matrix configuration order
+        # ==========================================
+        # Hardened Guardrail: Intercept missing numeric fields before casting to float
+        if parsed_data.submitted_charges is None or parsed_data.target_budget is None:
+            st.warning("⚠️ **Incomplete Numerical Data:** The system could not extract explicit values for submitted charges or target budgets.")
+            st.info("Please expand your query text to provide clear dollar amounts (e.g., 'Charges are $450 and budget is $300') to run the financial risk calculator.")
+            st.stop()
+
+        # Structure fields safely now that numeric values are verified present
         input_payload = pd.DataFrame([{
             "provider_specialty": parsed_data.provider_specialty,
             "facility_type": parsed_data.facility_type,
-            "cpt_code": parsed_data.cpt_code,
-            "state": parsed_data.state,
-            "insurer_tier": parsed_data.insurer_tier,
-            "service_weight": 8.5 if parsed_data.cpt_code == "27447" else 1.0,
-            "submitted_charges": parsed_data.submitted_charges,
-            "target_budget": parsed_data.target_budget
+            "cpt_code": str(parsed_data.cpt_code) if parsed_data.cpt_code else "99213",
+            "state": parsed_data.state if parsed_data.state else "NY",
+            "insurer_tier": parsed_data.insurer_tier if parsed_data.insurer_tier else "Silver",
+            "service_weight": 8.5 if str(parsed_data.cpt_code) == "27447" else 1.0,
+            "submitted_charges": float(parsed_data.submitted_charges),
+            "target_budget": float(parsed_data.target_budget)
         }])
         
-        # Execute binary classification prediction
+        # Execute binary classification prediction seamlessly through the pipeline wrapper
         raw_prediction = int(model.predict(input_payload)[0])
+
         
         # D. Response Generation Layer
         response_prompt = f"""
@@ -144,9 +163,10 @@ if st.button("Analyze Financial Risk", type="primary"):
         3. Outline relevant data limitations (e.g. Model evaluates a 5,000 baseline rows synthetic contract, subject to dynamic local payer negotiations, and assumes a hard $12,000 macro contract ceiling).
         """
         
+        #Update the model string for the Final Response Context Layer (Around Line 129)
         try:
             final_response = ai_client.chat.completions.create(
-                model="meta-llama/Meta-Llama-3.1-70B-Instruct",
+                model="meta-llama/Llama-3.3-70B-Instruct", # Updated to active Nebius endpoint identifier
                 messages=[{"role": "user", "content": response_prompt}],
                 temperature=0.3
             )
