@@ -2,6 +2,7 @@ import os
 import sys
 import mlflow
 import mlflow.sklearn
+import mlflow.xgboost
 import pandas as pd
 import yaml
 from sklearn.compose import ColumnTransformer
@@ -126,8 +127,25 @@ for model_key, model_info in models_cfg.items():
         }
         mlflow.log_metrics(metrics)
 
+        # Define the explicit list of safe types to prevent skops security exceptions
+        trusted_types = ["numpy.dtype", "numpy.core.multiarray.scalar"]
+
+        # Log Model Binaries safely using the modernized API parameters
+        if model_key == "gradient_boosting":
+            mlflow.xgboost.log_model(classifier_model, name=model_name)
+        else:
+            mlflow.sklearn.log_model(
+                classifier_model, 
+                name=model_name, 
+                skops_trusted_types=trusted_types
+            )
+
         # Register the complete end-to-end inference pipeline artifact cleanly to database storage
-        mlflow.sklearn.log_model(production_pipeline, name="production_reimbursement_pipeline")
+        mlflow.sklearn.log_model(
+            production_pipeline, 
+            name="production_reimbursement_pipeline",
+            skops_trusted_types=trusted_types
+        )
 
         print(f"✔️ Finished {run_name}")
         print(f"   F1-Score: {metrics['f1_score']:.4f} | Recall: {metrics['recall']:.4f}\n")
