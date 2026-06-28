@@ -37,9 +37,15 @@ jobs:
 
     - name: Execute Step 1 - Data Generation and Preprocessing
       run: |
-        # Corrected path to match your physical local file name
-        python src/data_preprocessing.py
+        # Corrected file name path string to match your preprocess.py asset
+        python src/preprocess.py
 
     - name: Execute Step 2 - Multi-Model Experiment Run
       run: |
-        python src/train_experiments.py
+        # Corrected training file name path string to match train.py
+        python src/train.py
+
+    - name: Execute Step 3 - Automated Unit Tests Suite
+      run: |
+        # Triggers automated verification rules inside the cloud runner environment
+        python -m pytest tests/ -v
