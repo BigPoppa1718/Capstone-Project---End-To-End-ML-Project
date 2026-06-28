@@ -198,3 +198,42 @@ docker build -t provider-billing-assistant .
 docker run -p 8501:8501 -e NEBIUS_API_KEY=\$NEBIUS_API_KEY provider-billing-assistant
 ```
 Once initialized, navigate to `http://localhost:8501` inside your web browser to interact with your end-to-end intelligent app interface.
+
+
+** cloud runner environments upon every code modification.
+
+---
+
+## 🛠️ Core Testing Matrices
+
+The verification matrix spans three isolated domains covering data transformations, artifact state conditions, and application boundary schemas:
+
+### 1. Preprocessing Verification Layer (`tests/test_preprocess.py`)
+Validates that our numerical and categorical transformers handle common Electronic Health Record (EHR) entry errors correctly before feed-forwarding matrices to the model:
+* **Missing Value Imputation**: Asserts that `SimpleImputer` successfully captures artificially injected null columns (`NaN`) and maps placeholder rows without losing feature data indices.
+* **Categorical Feature Expansion**: Checks that string parameters (specialties, facility spaces, insurer levels) convert cleanly into expanded one-hot binary dummy variables matching expected matrix dimensions.
+* **Structure Immutability Protection**: Deep-snapshots original incoming data structures to prove that our cleaning functions do not cause any global mutations or predictive data leakage.
+
+### 2. Model Performance & Output Testing (`tests/test_model.py`)
+Validates that models serialized via MLflow and the local relational SQLite store (`mlflow.db`) fulfill production runtime conditions:
+* **Output Type/Shape Validation**: Inspects incoming predictions to guarantee that our winning XGBoost algorithm emits bounded binary classification types (`[0, 1]`) instead of continuous floating decimals.
+* **Operational Performance Threshold Assertions**: Submits an extreme, obvious target budget deficit case to confirm the classifier flags high-risk financial overruns with 100% sensitivity.
+
+### 3. LLM Parsing & Schema Testing (`tests/test_interface.py`)
+Guarantees that input schemas managed by Pydantic and Nebius AI Studio parse fields safely without breaking backend calculators:
+* **Structured Variable Parsing Accuracy**: Confirms that clean input blocks map perfectly to predefined Pydantic object variables.
+* **Adversarial Input/Type Handling**: Simulates unparsable string entry blocks inside numerical fields to verify that the Pydantic validator throws an explicit `ValidationError` to block broken queries.
+
+---
+
+## 🚀 Execution Environment Instructions
+
+### Local Test Automation Execution
+To manually run the validation framework on your development machine, add your project workspace path to Python's internal search path:
+
+```bash
+python -m pytest tests/ -v
+```
+
+### Continuous Integration (CI/CD GitHub Actions)
+Every code contribution pushed to the remote repository activates the automated workflow runner (`.github/workflows/mlops.yaml`). The cloud environment spins up an isolated Ubuntu machine, sets up Python 3.12, installs system multithreading dependencies (`libomp`), builds packages from `requirements.txt`, processes data states, and executes the complete `pytest` validation loop automatically.
