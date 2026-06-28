@@ -127,8 +127,13 @@ for model_key, model_info in models_cfg.items():
         }
         mlflow.log_metrics(metrics)
 
-        # Define the explicit list of safe types to prevent skops security exceptions
-        trusted_types = ["numpy.dtype", "numpy.core.multiarray.scalar"]
+        # FIX: Expand the explicit list of safe types to whitelist core XGBoost modules inside the Pipeline
+        trusted_types = [
+            "numpy.dtype", 
+            "numpy.core.multiarray.scalar",
+            "xgboost.core.Booster",
+            "xgboost.sklearn.XGBClassifier"
+        ]
 
         # Log Model Binaries safely using the modernized API parameters
         if model_key == "gradient_boosting":
@@ -146,6 +151,7 @@ for model_key, model_info in models_cfg.items():
             name="production_reimbursement_pipeline",
             skops_trusted_types=trusted_types
         )
+
 
         print(f"✔️ Finished {run_name}")
         print(f"   F1-Score: {metrics['f1_score']:.4f} | Recall: {metrics['recall']:.4f}\n")
